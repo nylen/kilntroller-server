@@ -1,0 +1,8 @@
+{
+    "dependencies" : {
+        "js-yaml" : "^3.6.1",
+        "moment"  : "^2.13.0",
+        "mysql"   : "^2.10.2",
+        "split"   : "^1.0.0"
+    }
+}

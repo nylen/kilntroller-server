@@ -1,4 +1,4 @@
-CREATE TABLE temperature_data(
+CREATE TABLE temperature_data (
     measured_at DATETIME NOT NULL,
     temp_1 MEDIUMINT,
     temp_2 MEDIUMINT,

@@ -7,5 +7,12 @@
         "mysql"          : "^2.10.2",
         "split"          : "^1.0.0",
         "suspend"        : "^0.7.0"
+    },
+    "devDependencies" : {
+        "chai"  : "^3.5.0",
+        "mocha" : "^2.5.3"
+    },
+    "scripts" : {
+        "test" : "mocha"
     }
 }

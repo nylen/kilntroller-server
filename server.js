@@ -11,6 +11,9 @@ require('./lib/db').connect((err, db) => {
     if (err) throw err;
 
     const temperatureDataStore = new TemperatureDataStore(db);
+    temperatureDataStore.on('log', msg => {
+        console.log(`TemperatureDataStore: ${msg}`);
+    });
 
     apiRouter.get('/data', (req, res) => {
         const min   = +req.query.min || +moment.utc().subtract(2, 'days');

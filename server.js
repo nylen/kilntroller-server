@@ -39,12 +39,30 @@ require('./lib/db').connect((err, db) => {
                     error : err.message
                 });
             } else {
+                let actual;
+                if (points.length) {
+                    actual = {
+                        min   : points[0].timestamp,
+                        max   : points[points.length - 1].timestamp,
+                        count : points.length
+                    }
+                } else {
+                    actual = {
+                        min   : 0,
+                        max   : 0,
+                        count : 0
+                    };
+                }
+
                 res.json({
-                    ok   : true,
-                    data : points,
-                    min,
-                    max,
-                    count
+                    ok        : true,
+                    data      : points,
+                    requested : {
+                        min,
+                        max,
+                        count
+                    },
+                    actual
                 });
             }
         });

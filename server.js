@@ -104,8 +104,7 @@ require('./lib/db').connect((err, db) => {
         });
     });
 
-    app.use(cors());
-    app.use(config.http.basePath || '/', apiRouter);
+    app.use(config.http.basePath || '/', cors(), apiRouter);
 
     server.listen(config.http.port, () => {
         console.log('Listening for requests on :' + config.http.port);

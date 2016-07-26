@@ -2,18 +2,14 @@ const cors    = require('cors');
 const express = require('express');
 const http    = require('http');
 const moment  = require('moment');
-const net     = require('net');
-const sockjs  = require('sockjs');
-const split   = require('split');
 
 const config               = require('./lib/config');
 const TemperatureDataStore = require('./lib/TemperatureDataStore');
+const UpdateListener       = require('./lib/UpdateListener');
 
 const app       = express();
 const apiRouter = express.Router();
 const server    = http.createServer(app);
-
-let clientsToUpdate = [];
 
 require('./lib/db').connect((err, db) => {
     if (err) throw err;
@@ -23,32 +19,11 @@ require('./lib/db').connect((err, db) => {
         console.log(`TemperatureDataStore: ${msg}`);
     });
 
-    const updateListener = net.createServer(client => {
-        client.pipe(split())
-            .on('data', function(line) {
-                if (!line.trim()) return;
-                clientsToUpdate.forEach(c => c.write(line));
-            });
+    const updateListener = new UpdateListener(config.updateListener);
+    updateListener.on('log', msg => {
+        console.log(`UpdateListener: ${msg}`);
     });
-
-    updateListener.listen(config.updateListener.port, 'localhost', () => {
-        console.log('Listening for updates on :' + config.updateListener.port);
-    });
-
-    // TODO: upgrade to Apache 2.4 - http://stackoverflow.com/q/27526281/106302
-    const updateServer = sockjs.createServer({
-        sockjs_url : 'http://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js',
-        websocket  : false,
-    });
-
-    updateServer.on('connection', function(conn) {
-        clientsToUpdate.push(conn);
-        conn.on('close', function() {
-            clientsToUpdate = clientsToUpdate.filter(c => c !== conn);
-        });
-    });
-
-    updateServer.installHandlers(server, {
+    updateListener.server.installHandlers(server, {
         prefix : (config.http.basePath || '') + '/sockjs'
     });
 
@@ -113,7 +88,6 @@ require('./lib/db').connect((err, db) => {
     process.on('SIGINT', () => {
         console.log();
         updateListener.close();
-        console.log('Update listener closed');
         db.end(err => {
             if (err) throw err;
             console.log('MySQL connection closed');

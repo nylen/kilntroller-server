@@ -112,7 +112,9 @@ require('../lib/db').connect(function(err, db) {
 
     function sendSchedule(obj, next) {
         if (obj.schedule) {
-            if (!schedulesAreEqual(obj.schedule, lastSchedule)) {
+            if (schedulesAreEqual(obj.schedule, lastSchedule)) {
+                next(null);
+            } else {
                 if (updateListener && updateListener.connected) {
                     var update = {
                         type     : 'schedule',
@@ -134,6 +136,7 @@ require('../lib/db').connect(function(err, db) {
                     next(err);
                 });
             }
+            lastSchedule = obj.schedule;
         } else {
             next(null);
         }

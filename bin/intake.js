@@ -116,10 +116,12 @@ require('../lib/db').connect(function(err, db) {
                 next(null);
             } else {
                 if (updateListener && updateListener.connected) {
-                    var update = {
-                        type     : 'schedule',
-                        schedule : obj.schedule,
-                    };
+                    var update = Object.assign({
+                        type : 'schedule',
+                    }, obj.schedule);
+                    // Normalize, mainly for UI code
+                    update.timestamp = update.now;
+                    delete update.now;
                     updateListener.write(JSON.stringify(update) + "\n");
                 }
                 db.query(insertScheduleQuery, [

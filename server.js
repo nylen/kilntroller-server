@@ -79,6 +79,10 @@ require('./lib/db').connect((err, db) => {
         });
     });
 
+    apiRouter.get('/status', (req, res) => {
+        res.json(updateListener.getCurrentStatus());
+    });
+
     app.use(config.http.basePath || '/', cors(), apiRouter);
 
     server.listen(config.http.port, () => {

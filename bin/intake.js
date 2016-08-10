@@ -55,7 +55,7 @@ var insertScheduleQuery = `
 function schedulesAreEqual(a, b) {
     a = JSON.parse(JSON.stringify(a)) || {};
     b = JSON.parse(JSON.stringify(b)) || {};
-    ['startedAt', 'stepStartedAt', 'now'].forEach(function(k) {
+    ['startedAt', 'stepStartedAt', 'timestamp'].forEach(function(k) {
         delete a[k];
         delete b[k];
     });
@@ -119,14 +119,11 @@ require('../lib/db').connect(function(err, db) {
                     var update = Object.assign({
                         type : 'schedule',
                     }, obj.schedule);
-                    // Normalize, mainly for UI code
-                    update.timestamp = update.now;
-                    delete update.now;
                     updateListener.write(JSON.stringify(update) + "\n");
                 }
                 db.query(insertScheduleQuery, [
                     // changed_at DATETIME NOT NULL
-                    moment.utc(obj.schedule.now).toDate(),
+                    moment.utc(obj.schedule.timestamp).toDate(),
                     // schedule_started_at DATETIME
                     moment.utc(obj.schedule.startedAt).toDate(),
                     // step_started_at DATETIME
